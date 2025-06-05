@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finite Automata Manager</title>
+    <link rel="stylesheet" href="/automata-project/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Finite Automata Manager</h1>
+            <p>Design, test, and manipulate finite automata with advanced operations</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Automata Design Section -->
+            <div class="section">
+                <h3>🎨 Design Finite Automaton</h3>
+                <div class="form-group">
+                    <label for="automatonName">Automaton Name:</label>
+                    <input type="text" id="automatonName" placeholder="Enter automaton name">
+                </div>
+                <div class="form-group">
+                    <label for="states">States (comma-separated):</label>
+                    <input type="text" id="states" placeholder="q0,q1,q2">
+                </div>
+                <div class="form-group">
+                    <label for="alphabet">Alphabet (comma-separated):</label>
+                    <input type="text" id="alphabet" placeholder="a,b">
+                </div>
+                <div class="form-group">
+                    <label for="startState">Start State:</label>
+                    <input type="text" id="startState" placeholder="q0">
+                </div>
+                <div class="form-group">
+                    <label for="acceptStates">Accept States (comma-separated):</label>
+                    <input type="text" id="acceptStates" placeholder="q1,q2">
+                </div>
+                <div class="form-group">
+                    <label for="transitions">Transitions (format: from,input,to each line):</label>
+                    <textarea id="transitions" placeholder="q0,a,q1&#10;q0,b,q0&#10;q1,a,q2"></textarea>
+                </div>
+                <button class="btn" onclick="createAutomaton()">Create Automaton</button>
+                <div id="createResult" class="result" style="display: none;"></div>
+            </div>
+
+            <!-- Testing Section -->
+            <div class="section">
+                <h3>🧪 Test Automaton</h3>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('deterministic')">Deterministic Test</button>
+                    <button class="tab" onclick="switchTab('acceptance')">String Acceptance</button>
+                </div>
+                
+                <div id="deterministic" class="tab-content active">
+                    <button class="btn" onclick="testDeterministic()">Test if Deterministic</button>
+                    <div id="deterministicResult" class="result" style="display: none;"></div>
+                </div>
+
+                <div id="acceptance" class="tab-content">
+                    <div class="form-group">
+                        <label for="testString">Test String:</label>
+                        <input type="text" id="testString" placeholder="Enter string to test">
+                    </div>
+                    <button class="btn" onclick="testString()">Test Acceptance</button>
+                    <div id="acceptanceResult" class="result" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Conversion Section -->
+            <div class="section">
+                <h3>🔄 Automaton Conversion</h3>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('nfaToDfa')">NFA to DFA</button>
+                    <button class="tab" onclick="switchTab('minimize')">Minimize DFA</button>
+                </div>
+
+                <div id="nfaToDfa" class="tab-content active">
+                    <button class="btn" onclick="convertNFAtoDFA()">Convert NFA to DFA</button>
+                    <div id="conversionResult" class="result" style="display: none;"></div>
+                </div>
+
+                <div id="minimize" class="tab-content">
+                    <button class="btn" onclick="minimizeDFA()">Minimize DFA</button>
+                    <div id="minimizeResult" class="result" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Saved Automata Section -->
+            <div class="section">
+                <h3>💾 Saved Automata</h3>
+                <div class="automata-list" id="automataList">
+                    <p style="color: #6b7280; text-align: center; padding: 20px;">No automata saved yet</p>
+                </div>
+                <button class="btn btn-secondary" onclick="loadAutomaton()">Load Selected</button>
+                <button class="btn btn-danger" onclick="deleteAutomaton()">Delete Selected</button>
+                <button class="btn btn-secondary" onclick="exportAutomata()">Export All</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
