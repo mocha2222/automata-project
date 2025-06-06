@@ -260,7 +260,7 @@ class FiniteAutomaton {
         for (const [key, toStates] of this.transitions) {
             const [from, input] = key.split(',');
             for (const to of toStates) {
-                result += `  δ(${from}, ${input}) = ${to}\n`;
+                result += ` ${from} --> ${input} --> ${to}\n`;
             }
         }
         return result;
@@ -459,5 +459,135 @@ function clearForm() {
     document.getElementById('transitions').value = '';
 }
 
+function importAutomata() {
+    console.log("Starting import process...");
+    
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.json';
+    fileInput.style.display = 'none';
+    
+    // Add to DOM temporarily
+    document.body.appendChild(fileInput);
+    
+    fileInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        
+        if (!file) {
+            console.log("No file selected");
+            document.body.removeChild(fileInput);
+            return;
+        }
+        
+        console.log("File selected:", file.name);
+        
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                console.log("Parsed JSON data:", importedData);
+                
+                if (!Array.isArray(importedData)) {
+                    throw new Error("Invalid file format. Expected an array of automata.");
+                }
+                
+                let importedCount = 0;
+                let errors = [];
+                
+                importedData.forEach((data, index) => {
+                    try {
+                        // Validate required fields
+                        if (!data.name || !data.states || !data.alphabet || !data.startState || !data.acceptStates || !data.transitions) {
+                            throw new Error(`Missing required fields in automaton ${index + 1}`);
+                        }
+                        
+                        // Convert transitions from exported format back to string format
+                        let transitionString = '';
+                        if (Array.isArray(data.transitions)) {
+                            // Handle array format from export
+                            data.transitions.forEach(([key, toStatesArray]) => {
+                                const [fromState, symbol] = key.split(',');
+                                toStatesArray.forEach(toState => {
+                                    transitionString += `${fromState},${symbol},${toState}\n`;
+                                });
+                            });
+                        } else if (data.transitions instanceof Object) {
+                            // Handle object format (if transitions were stored as object)
+                            for (const [key, toStatesArray] of Object.entries(data.transitions)) {
+                                const [fromState, symbol] = key.split(',');
+                                if (Array.isArray(toStatesArray)) {
+                                    toStatesArray.forEach(toState => {
+                                        transitionString += `${fromState},${symbol},${toState}\n`;
+                                    });
+                                }
+                            }
+                        } else if (typeof data.transitions === 'string') {
+                            // Handle string format (already in correct format)
+                            transitionString = data.transitions;
+                        }
+                        
+                        // Create new automaton
+                        const newAutomaton = new FiniteAutomaton(
+                            data.name,
+                            Array.isArray(data.states) ? data.states : Array.from(data.states),
+                            Array.isArray(data.alphabet) ? data.alphabet : Array.from(data.alphabet),
+                            data.startState,
+                            Array.isArray(data.acceptStates) ? data.acceptStates : Array.from(data.acceptStates),
+                            transitionString.trim()
+                        );
+                        
+                        // Generate new unique ID
+                        newAutomaton.id = Date.now() + Math.random() + importedCount;
+                        
+                        savedAutomata.push(newAutomaton);
+                        importedCount++;
+                        
+                    } catch (error) {
+                        console.warn(`Error importing automaton ${index + 1}:`, error.message);
+                        errors.push(`Automaton ${index + 1}: ${error.message}`);
+                    }
+                });
+                
+                // Update the UI
+                updateAutomataList();
+                
+                // Show results
+                if (importedCount > 0) {
+                    let message = `Successfully imported ${importedCount} automaton(s)!`;
+                    if (errors.length > 0) {
+                        message += `\n\nWarnings:\n${errors.join('\n')}`;
+                    }
+                    alert(message);
+                } else {
+                    alert("No automata could be imported. Please check the file format.");
+                }
+                
+            } catch (error) {
+                console.error("Import error:", error);
+                alert(`Error importing file: ${error.message}`);
+            } finally {
+                // Clean up
+                if (document.body.contains(fileInput)) {
+                    document.body.removeChild(fileInput);
+                }
+            }
+        };
+        
+        reader.onerror = function() {
+            alert("Error reading file");
+            console.error("FileReader error");
+            if (document.body.contains(fileInput)) {
+                document.body.removeChild(fileInput);
+            }
+        };
+        
+        // Start reading the file
+        reader.readAsText(file);
+    });
+    
+    // Trigger file dialog
+    fileInput.click();
+}
 // Initialize the app
 updateAutomataList();
