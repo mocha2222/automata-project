@@ -67,6 +67,7 @@ class FiniteAutomaton {
         return false;
     }
 
+    // Updated convertToDFA method - replace the existing one in your FiniteAutomaton class
     convertToDFA() {
         if (this.isDeterministic()) {
             return this;
@@ -78,17 +79,26 @@ class FiniteAutomaton {
         const stateQueue = [];
         const stateMap = new Map();
 
-        // Start with epsilon closure of start state
+        // Start with epsilon closure of start state (just the start state itself since no epsilon transitions shown)
         const startClosure = new Set([this.startState]);
         stateQueue.push(startClosure);
-        stateMap.set(Array.from(startClosure).sort().join(','), startClosure);
+    
+        // Create readable state name for start state
+        const startStateName = Array.from(startClosure).length === 1 ? 
+            Array.from(startClosure)[0] : 
+            Array.from(startClosure).sort().join('-');
+    
+        stateMap.set(startStateName, startClosure);
 
         while (stateQueue.length > 0) {
             const currentStateSet = stateQueue.shift();
-            const currentStateName = Array.from(currentStateSet).sort().join(',');
+            const currentStateName = Array.from(currentStateSet).length === 1 ? 
+                Array.from(currentStateSet)[0] : 
+                Array.from(currentStateSet).sort().join('-');
+            
             dfaStates.add(currentStateName);
 
-            // Check if this state should be accepting
+        // Check if this state should be accepting
             for (const state of currentStateSet) {
                 if (this.acceptStates.has(state)) {
                     dfaAcceptStates.add(currentStateName);
@@ -99,7 +109,7 @@ class FiniteAutomaton {
             // For each symbol in alphabet
             for (const symbol of this.alphabet) {
                 const nextStateSet = new Set();
-                
+            
                 for (const state of currentStateSet) {
                     const key = `${state},${symbol}`;
                     if (this.transitions.has(key)) {
@@ -110,7 +120,10 @@ class FiniteAutomaton {
                 }
 
                 if (nextStateSet.size > 0) {
-                    const nextStateName = Array.from(nextStateSet).sort().join(',');
+                    const nextStateName = Array.from(nextStateSet).length === 1 ? 
+                        Array.from(nextStateSet)[0] : 
+                        Array.from(nextStateSet).sort().join('-');
+                    
                     dfaTransitions.set(`${currentStateName},${symbol}`, new Set([nextStateName]));
 
                     if (!stateMap.has(nextStateName)) {
@@ -126,14 +139,13 @@ class FiniteAutomaton {
             this.name + '_DFA',
             Array.from(dfaStates),
             Array.from(this.alphabet),
-            Array.from(stateMap.keys())[0],
+            startStateName,
             Array.from(dfaAcceptStates),
             ''
         );
         dfa.transitions = dfaTransitions;
         return dfa;
     }
-
     minimize() {
         if (!this.isDeterministic()) {
             throw new Error('Can only minimize deterministic automata');
