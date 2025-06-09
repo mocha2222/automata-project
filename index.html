@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,10 +8,14 @@
     <link rel="stylesheet" href="/automata-project/style.css">
 </head>
 <body>
+    <div class="auto-save-indicator" id="autoSaveIndicator">
+        Auto-saved ✓  
+    </div>
+
     <div class="container">
         <div class="header">
             <h1>Finite Automata Manager</h1>
-            <p>Design, test, and manipulate finite automata with advanced operations</p>
+            <p>Design, test, and manipulate finite automata with automatic save/load</p>
         </div>
 
         <div class="main-content">
@@ -41,7 +46,7 @@
                     <label for="transitions">Transitions (format: from,input,to each line):</label>
                     <textarea id="transitions" placeholder="q0,a,q1&#10;q0,b,q0&#10;q1,a,q2"></textarea>
                 </div>
-                <button class="btn" onclick="createAutomaton()">Create Automaton</button>
+                <button class="btn" onclick="createAutomaton()">Create & Save Automaton</button>
                 <div id="createResult" class="result" style="display: none;"></div>
             </div>
 
@@ -89,18 +94,17 @@
 
             <!-- Saved Automata Section -->
             <div class="section">
-                <h3>Saved Automata</h3>
+                <h3>Saved Automata <span style="font-size: 0.8em; color: #6b7280;">(Auto-loaded & Auto-saved)</span></h3>
                 <div class="automata-list" id="automataList">
                     <p style="color: #6b7280; text-align: center; padding: 20px;">No automata saved yet</p>
                 </div>
                 <button class="btn btn-secondary" onclick="loadAutomaton()">Load Selected</button>
                 <button class="btn btn-danger" onclick="deleteAutomaton()">Delete Selected</button>
-                <button class="btn btn-secondary" onclick="exportAutomata()">Export All</button>
-                <button class="btn btn-secondary" onclick="importAutomata()">Import All</button>
+                <button class="btn btn-success" onclick="exportAutomata()">Export Backup</button>
+                <button class="btn btn-danger" onclick="clearAllData()">Clear All Data</button>
             </div>
         </div>
     </div>
-
     <script src="/automata-project/script.js"></script>
 </body>
 </html>
