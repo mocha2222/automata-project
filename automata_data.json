@@ -1,40 +1,75 @@
 [
   {
-    "id": 1749477350692.0215,
-    "name": "String that contain a b",
-    "states": [
-      "q0",
-      "q1",
-      "q2"
-    ],
-    "alphabet": [
-      "a",
-      "b"
-    ],
+    "id": 1,
+    "name": "DFA_EndsWithA",
+    "states": ["q0", "q1"],
+    "alphabet": ["a", "b"],
     "startState": "q0",
-    "acceptStates": [
-      "q2"
-    ],
+    "acceptStates": ["q1"],
     "transitions": {
-      "q0,a": [
-        "q1"
-      ],
-      "q0,b": [
-        "q0"
-      ],
-      "q1,b": [
-        "q2"
-      ],
-      "q1,a": [
-        "q1"
-      ],
-      "q2,a": [
-        "q2"
-      ],
-      "q2,b": [
-        "q2"
-      ]
+      "q0,a": ["q1"],
+      "q0,b": ["q0"],
+      "q1,a": ["q1"],
+      "q1,b": ["q0"]
     },
-    "transitionsString": ""
+    "transitionsString": "q0,a,q1\nq0,b,q0\nq1,a,q1\nq1,b,q0"
+  },
+  {
+    "id": 2,
+    "name": "DFA_OnlyEvenA",
+    "states": ["q0", "q1"],
+    "alphabet": ["a", "b"],
+    "startState": "q0",
+    "acceptStates": ["q0"],
+    "transitions": {
+      "q0,a": ["q1"],
+      "q0,b": ["q0"],
+      "q1,a": ["q0"],
+      "q1,b": ["q1"]
+    },
+    "transitionsString": "q0,a,q1\nq0,b,q0\nq1,a,q0\nq1,b,q1"
+  },
+  {
+    "id": 3,
+    "name": "DFA_OnlyB",
+    "states": ["q0", "q1"],
+    "alphabet": ["a", "b"],
+    "startState": "q0",
+    "acceptStates": ["q1"],
+    "transitions": {
+      "q0,a": ["q0"],
+      "q0,b": ["q1"],
+      "q1,a": ["q0"],
+      "q1,b": ["q1"]
+    },
+    "transitionsString": "q0,a,q0\nq0,b,q1\nq1,a,q0\nq1,b,q1"
+  },
+  {
+    "id": 4,
+    "name": "NFA_EndsWithAB",
+    "states": ["q0", "q1", "q2"],
+    "alphabet": ["a", "b"],
+    "startState": "q0",
+    "acceptStates": ["q2"],
+    "transitions": {
+      "q0,a": ["q0", "q1"],
+      "q0,b": ["q0"],
+      "q1,b": ["q2"]
+    },
+    "transitionsString": "q0,a,q0\nq0,a,q1\nq0,b,q0\nq1,b,q2"
+  },
+  {
+    "id": 5,
+    "name": "NFA_ContainsAA",
+    "states": ["p0", "p1", "p2"],
+    "alphabet": ["a", "b"],
+    "startState": "p0",
+    "acceptStates": ["p2"],
+    "transitions": {
+      "p0,a": ["p0", "p1"],
+      "p0,b": ["p0"],
+      "p1,a": ["p2"]
+    },
+    "transitionsString": "p0,a,p0\np0,a,p1\np0,b,p0\np1,a,p2"
   }
 ]
