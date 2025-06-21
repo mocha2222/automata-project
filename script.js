@@ -277,6 +277,136 @@ class FiniteAutomaton {
         }
         return result;
     }
+        
+    convertToRegularExpression() {
+        const dfa = this.isDeterministic() ? this : this.convertToDFA();
+        return dfa.stateEliminationMethod();
+    }
+
+    stateEliminationMethod() {
+        const states = Array.from(this.states);
+        const n = states.length;
+
+        const stateMap = {};
+        states.forEach((state, i) => {
+            stateMap[state] = i;
+        });
+
+        const virtualStart = n;
+        const virtualFinal = n + 1;
+        const totalStates = n + 2;
+
+        const R = Array.from({ length: totalStates }, () =>
+            Array.from({ length: totalStates }, () => new Set())
+        );
+
+        for (const [key, toStates] of this.transitions.entries()) {
+            const [from, symbol] = key.split(',');
+            const fromIdx = stateMap[from];
+            for (const to of toStates) {
+                const toIdx = stateMap[to];
+                R[fromIdx][toIdx].add(symbol);
+            }
+        }
+
+        R[virtualStart][stateMap[this.startState]].add('ε');
+
+        for (const acceptState of this.acceptStates) {
+            R[stateMap[acceptState]][virtualFinal].add('ε');
+        }
+
+        const toRegex = set => {
+            if (set.size === 0) return '∅';
+            if (set.size === 1) return [...set][0];
+            return `(${[...set].join('|')})`;
+        };
+
+        for (let k = 0; k < n; k++) {
+            for (let i = 0; i < totalStates; i++) {
+                for (let j = 0; j < totalStates; j++) {
+                    if (i === k || j === k) continue;
+                    const ik = toRegex(R[i][k]);
+                    const kk = toRegex(R[k][k]);
+                    const kj = toRegex(R[k][j]);
+
+                    if (ik === '∅' || kj === '∅') continue;
+
+                    const part = this.concatenateRegex(
+                        this.concatenateRegex(ik, this.starRegex(kk)),
+                        kj
+                    );
+                    R[i][j] = new Set([...R[i][j], part]);
+                }
+            }
+
+            for (let x = 0; x < totalStates; x++) {
+                R[x][k] = new Set();
+                R[k][x] = new Set();
+            }
+        }
+
+        const regex = toRegex(R[virtualStart][virtualFinal]);
+        return this.simplifyRegex(regex);
+    }
+
+    concatenateRegex(r1, r2) {
+        if (r1 === '∅' || r2 === '∅') return '∅';
+        if (r1 === 'ε') return r2;
+        if (r2 === 'ε') return r1;
+
+        const needsParen = r => /\|/.test(r) && !/^\(.+\)$/.test(r);
+        return (needsParen(r1) ? `(${r1})` : r1) + (needsParen(r2) ? `(${r2})` : r2);
+    }
+
+    unionRegex(r1, r2) {
+        if (r1 === '∅') return r2;
+        if (r2 === '∅') return r1;
+        if (r1 === r2) return r1;
+
+        const parts = new Set();
+        for (const p of [r1, r2]) {
+            if (p.startsWith('(') && p.endsWith(')')) {
+                p.slice(1, -1).split('|').forEach(s => parts.add(s));
+            } else {
+                parts.add(p);
+            }
+        }
+
+        return `(${Array.from(parts).join('|')})`;
+    }
+
+    starRegex(r) {
+        if (r === '∅' || r === 'ε') return 'ε';
+        if (r.endsWith('*')) return r;
+        if (/^[a-zA-Z0-9]$/.test(r)) return r + '*';
+        return `(${r})*`;
+    }
+
+    simplifyRegex(regex) {
+        if (!regex || regex === '∅') return '∅';
+        if (regex === 'ε') return 'ε';
+
+        let result = regex;
+        let changed = true;
+
+        while (changed) {
+            changed = false;
+            const old = result;
+
+            result = result.replace(/ε([a-zA-Z0-9(])/g, '$1');
+            result = result.replace(/([a-zA-Z0-9)])ε/g, '$1');
+            result = result.replace(/\(([a-zA-Z0-9])\)/g, '$1');
+            result = result.replace(/\(∅\|([^)]+)\)/g, '$2');
+            result = result.replace(/\(([^)]+)\|∅\)/g, '$1');
+            result = result.replace(/\*\*/g, '*');
+
+            if (result !== old) changed = true;
+        }
+
+        return result === '' ? 'ε' : result;
+    }
+
+
 }
 
 // UI Functions
@@ -601,5 +731,19 @@ function importAutomata() {
     // Trigger file dialog
     fileInput.click();
 }
+function convertFAToRegex() {
+    if (!currentAutomaton) {
+        showResult('faToRegexResult', 'Error: No automaton selected', 'error');
+        return;
+    }
+
+    try {
+        const regex = currentAutomaton.convertToRegularExpression();
+        showResult('faToRegexResult', `Regular Expression: ${regex}`, 'success');
+    } catch (error) {
+        showResult('faToRegexResult', `Error: ${error.message}`, 'error');
+    }
+}
+
 // Initialize the app
 updateAutomataList();

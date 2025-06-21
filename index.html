@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finite Automata Manager</title>
-    <link rel="stylesheet" href="/automata-project/style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <div class="auto-save-indicator" id="autoSaveIndicator">
@@ -90,7 +90,21 @@
                     <div id="minimizeResult" class="result" style="display: none;"></div>
                 </div>
             </div>
+            <!-- Add this section to your main-content div -->
+            <!-- Regular Expression Conversion Section -->
+            <div class="section">
+                <h3>Regular Expression Conversion</h3>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('faToRegex')">FA to RegEx</button>
+                </div>
 
+                <div id="faToRegex" class="tab-content active">
+                    <p style="color: #6b7280; margin-bottom: 15px;">Convert the currently selected finite automaton to a regular expression</p>
+                    <button class="btn" onclick="convertFAToRegex()">Convert FA to Regular Expression</button>
+                    <div id="faToRegexResult" class="result" style="display: none;"></div>
+                </div>
+            </div>
+                        
             <!-- Saved Automata Section -->
             <div class="section">
                 <h3>Saved Automata <span style="font-size: 0.8em; color: #6b7280;">(Auto-loaded & Auto-saved)</span></h3>
@@ -104,7 +118,8 @@
             </div>
         </div>
     </div>
-    <script src="/automata-project/script.js"></script>
+
+    <script src="/script.js"></script>
     <!-- Add a reference to the new JSON file for automata data -->
     <script>
         const AUTOMATA_JSON_PATH = 'automata_data.json';
